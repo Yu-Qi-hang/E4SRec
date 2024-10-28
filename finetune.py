@@ -106,13 +106,13 @@ def train(
 
     if task_type == 'general':
         dataset = BipartiteGraphDataset(data_path)
-        user_embed, item_embed = (pickle.load(open(data_path + 'VanillaMF_user_embed.pkl', 'rb')),
-                                  pickle.load(open(data_path + 'VanillaMF_item_embed.pkl', 'rb')))
+        user_embed, item_embed = (pickle.load(open(os.path.join('datasets', task_type, data_path, 'VanillaMF_user_embed.pkl'), 'rb')),
+                                  pickle.load(open(os.path.join('datasets', task_type, data_path, 'VanillaMF_item_embed.pkl'), 'rb')))
         item_embed = torch.cat([item_embed.mean(dim=0).unsqueeze(0), item_embed], dim=0)
         data_collator = BipartiteGraphCollator()
     elif task_type == 'sequential':
         dataset = SequentialDataset(data_path, 50)
-        user_embed, item_embed = None, pickle.load(open(data_path + 'SASRec_item_embed.pkl', 'rb'))
+        user_embed, item_embed = None, pickle.load(open(os.path.join('datasets', task_type, data_path, 'SASRec_item_embed.pkl'), 'rb'))
         data_collator = SequentialCollator()
 
     model = LLM4Rec(

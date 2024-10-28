@@ -108,15 +108,15 @@ def train(
 
     if task_type == 'general':
         dataset = BipartiteGraphDataset(data_path)
-        user_embed, item_embed = (pickle.load(open(data_path + 'VanillaMF_user_embed.pkl', 'rb')).cuda(),
-                                  pickle.load(open(data_path + 'VanillaMF_item_embed.pkl', 'rb')).cuda())
+        user_embed, item_embed = (pickle.load(open(os.path.join('datasets', task_type, data_path, 'VanillaMF_user_embed.pkl'), 'rb')),
+                                  pickle.load(open(os.path.join('datasets', task_type, data_path, 'VanillaMF_item_embed.pkl'), 'rb')))
         item_embed = torch.cat([item_embed.mean(dim=0).unsqueeze(0), item_embed], dim=0)
         data_collator = BipartiteGraphCollator()
     elif task_type == 'sequential':
         dataset = SequentialDataset(data_path, 50)
-        user_embed, item_embed = None, pickle.load(open(data_path + 'SASRec_item_embed.pkl', 'rb')).cuda()
+        user_embed, item_embed = None, pickle.load(open(os.path.join('datasets', task_type, data_path, 'SASRec_item_embed.pkl'), 'rb'))
         data_collator = SequentialCollator()
-    
+
     state_dict = torch.load(checkpoint_dir + 'pytorch_model.bin', map_location='cpu')
     state_dict = {k: v.cuda() for k, v in state_dict.items() if 'lora' in k or 'user_proj' in k or 'input_proj' in k or 'score' in k}
 
@@ -207,6 +207,7 @@ def train(
             groundTruth = [[testData[u][1]]]
             inputs = torch.LongTensor(testData[u][0]).cuda().unsqueeze(0)
             inputs_mask = torch.ones(inputs.shape).cuda()
+            print('inputs',inputs.shape)
             _, ratings = model.predict(inputs, inputs_mask)
             exclude_index = []
             exclude_items = []

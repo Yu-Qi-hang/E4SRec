@@ -39,7 +39,7 @@ class LLM4Rec(nn.Module):
         self.llama_model.config.use_cache = False
 
         self.llama_tokenizer = LlamaTokenizer.from_pretrained(self.args['base_model'], use_fast=False, local_files_only=True, cache_dir=args['cache_dir'])
-        self.llama_tokenizer.pad_token = 0
+        self.llama_tokenizer.pad_token_id = 0
         self.llama_tokenizer.padding_side = "right"
         self.instruct_ids, self.instruct_mask = self.llama_tokenizer(self.args['instruction_text'][0],
                                                                      truncation=True, padding=False,
