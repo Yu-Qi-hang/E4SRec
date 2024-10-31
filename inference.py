@@ -49,6 +49,8 @@ def train(
     resume_from_checkpoint: str = None,  # either training checkpoint or final adapter
     prompt_template_name: str = "alpaca"
 ):
+    checkpoint_dir = f'{checkpoint_dir}/{data_path}'
+    output_dir = f'{output_dir}/{data_path}'
     if int(os.environ.get("LOCAL_RANK", 0)) == 0:
         print(
             f"Params using prompt template {prompt_template_name}:\n"
@@ -117,7 +119,6 @@ def train(
         user_embed, item_embed = None, pickle.load(open(os.path.join('datasets', task_type, data_path, 'SASRec_item_embed.pkl'), 'rb'))
         data_collator = SequentialCollator()
 
-    checkpoint_dir = f'{checkpoint_dir}/{data_path}'
     # state_dict = torch.load(checkpoint_dir + 'pytorch_model.bin', map_location='cpu')
     # state_dict = {k: v.cuda() for k, v in state_dict.items() if 'lora' in k or 'user_proj' in k or 'input_proj' in k or 'score' in k}
     state_dict = torch.load(os.path.join(checkpoint_dir, 'adapter.pth'), map_location='cuda')

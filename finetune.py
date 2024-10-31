@@ -49,6 +49,8 @@ def train(
     resume_from_checkpoint: str = None,  # either training checkpoint or final adapter
     prompt_template_name: str = "alpaca"
 ):
+    checkpoint_dir = f'{checkpoint_dir}/{data_path}'
+    output_dir = f'{output_dir}/{data_path}'
     if int(os.environ.get("LOCAL_RANK", 0)) == 0:
         print(
             f"Params using prompt template {prompt_template_name}:\n"
@@ -232,7 +234,6 @@ def train(
               f'MAP@{k}: {results["MAP"][j]} \n '
               f'NDCG@{k}: {results["NDCG"][j]} \n')
 
-    checkpoint_dir = f'{checkpoint_dir}/{data_path}'
     model.llama_model.save_pretrained(checkpoint_dir)
     model_path = os.path.join(checkpoint_dir, "adapter.pth")
     if task_type == 'general':
