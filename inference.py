@@ -1,7 +1,7 @@
 import os
 import sys
 from typing import List
-
+from tqdm import tqdm
 import fire
 import torch
 import pickle
@@ -117,8 +117,11 @@ def train(
         user_embed, item_embed = None, pickle.load(open(os.path.join('datasets', task_type, data_path, 'SASRec_item_embed.pkl'), 'rb'))
         data_collator = SequentialCollator()
 
-    state_dict = torch.load(checkpoint_dir + 'pytorch_model.bin', map_location='cpu')
-    state_dict = {k: v.cuda() for k, v in state_dict.items() if 'lora' in k or 'user_proj' in k or 'input_proj' in k or 'score' in k}
+    checkpoint_dir = f'{checkpoint_dir}/{data_path}'
+    # state_dict = torch.load(checkpoint_dir + 'pytorch_model.bin', map_location='cpu')
+    # state_dict = {k: v.cuda() for k, v in state_dict.items() if 'lora' in k or 'user_proj' in k or 'input_proj' in k or 'score' in k}
+    state_dict = torch.load(os.path.join(checkpoint_dir, 'adapter.pth'), map_location='cuda')
+    state_dict = {k: v for k, v in state_dict.items() if 'lora' in k or 'user_proj' in k or 'input_proj' in k or 'score' in k}
 
     model = LLM4Rec(
         base_model=base_model,
@@ -186,7 +189,7 @@ def train(
 
     testData = dataset.testData
     users = np.arange(dataset.n_user)
-    for u in users:
+    for u in tqdm(users):
         if task_type == 'general':
             all_pos = [dataset.allPos[u]]
             groundTruth = [testData[u]]
@@ -207,7 +210,7 @@ def train(
             groundTruth = [[testData[u][1]]]
             inputs = torch.LongTensor(testData[u][0]).cuda().unsqueeze(0)
             inputs_mask = torch.ones(inputs.shape).cuda()
-            print('inputs',inputs.shape)
+            # print('inputs',inputs.shape)
             _, ratings = model.predict(inputs, inputs_mask)
             exclude_index = []
             exclude_items = []

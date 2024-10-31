@@ -5,7 +5,7 @@ import transformers
 from transformers import LlamaModel, LlamaForCausalLM, LlamaTokenizer
 from transformers.modeling_outputs import SequenceClassifierOutputWithPast
 
-from peft import (
+from peft import ( #指令微调
     LoraConfig,
     get_peft_model,
     prepare_model_for_int8_training,

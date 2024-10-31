@@ -119,8 +119,6 @@ class SequentialCollator:
         inputs_mask = [[0] * (max_len - len(seq)) + [1] * len(seq) for seq in seqs]
         labels = [[label] for label in labels]
         inputs, inputs_mask, labels = torch.LongTensor(inputs), torch.LongTensor(inputs_mask), torch.LongTensor(labels)
-        print('inputs',inputs.shape)
-
         return {
             "inputs": inputs,
             "inputs_mask": inputs_mask,

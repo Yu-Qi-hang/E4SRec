@@ -134,4 +134,4 @@ dmypy.json
 
 
 # Pretrained Model
-llama-2-7b-hf
+lfs/

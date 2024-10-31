@@ -1,7 +1,7 @@
 import os
 import sys
 from typing import List
-
+from tqdm import tqdm
 import fire
 import torch
 import pickle
@@ -19,6 +19,7 @@ def train(
     base_model: str = "", 
     data_path: str = "",
     cache_dir: str = "",
+    checkpoint_dir: str = "",
     output_dir: str = "",
     task_type: str = "",
     # training hyperparams
@@ -54,6 +55,7 @@ def train(
             f"base_model: {base_model}\n"
             f"data_path: {data_path}\n"
             f"cache_dir: {cache_dir}\n"
+            f"checkpoint_dir: {checkpoint_dir}\n"
             f"output_dir: {output_dir}\n"
             f"task_type: {task_type}\n"
             f"batch_size: {batch_size}\n"
@@ -181,7 +183,7 @@ def train(
 
     testData = dataset.testData
     users = np.arange(dataset.n_user)
-    for u in users:
+    for u in tqdm(users):
         if task_type == 'general':
             all_pos = [dataset.allPos[u]]
             groundTruth = [testData[u]]
@@ -230,8 +232,9 @@ def train(
               f'MAP@{k}: {results["MAP"][j]} \n '
               f'NDCG@{k}: {results["NDCG"][j]} \n')
 
-    model.llama_model.save_pretrained(output_dir)
-    model_path = os.path.join(output_dir, "adapter.pth")
+    checkpoint_dir = f'{checkpoint_dir}/{data_path}'
+    model.llama_model.save_pretrained(checkpoint_dir)
+    model_path = os.path.join(checkpoint_dir, "adapter.pth")
     if task_type == 'general':
         user_proj, input_proj, score = model.user_proj.state_dict(), model.input_proj.state_dict(), model.score.state_dict()
         torch.save({'user_proj': user_proj, 'input_proj': input_proj, 'score': score}, model_path)
