@@ -7,7 +7,8 @@ import torch
 import pickle
 import numpy as np
 import transformers
-from transformers import LlamaForCausalLM, LlamaTokenizer
+# from transformers import LlamaTokenizer
+# from quest.models.llama import LlamaForCausalLM
 from utils.prompter import Prompter
 from model import LLM4Rec
 from utils.data_utils import BipartiteGraphDataset, BipartiteGraphCollator, SequentialDataset, SequentialCollator

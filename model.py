@@ -2,7 +2,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import transformers
-from transformers import LlamaModel, LlamaForCausalLM, LlamaTokenizer
+from transformers import LlamaTokenizer
+from transformers import LlamaModel, LlamaForCausalLM
 from transformers.modeling_outputs import SequenceClassifierOutputWithPast
 
 from peft import ( #指令微调
@@ -39,7 +40,7 @@ class LLM4Rec(nn.Module):
         self.llama_model.config.use_cache = False
 
         self.llama_tokenizer = LlamaTokenizer.from_pretrained(self.args['base_model'], use_fast=False, local_files_only=True, cache_dir=args['cache_dir'])
-        self.llama_tokenizer.pad_token_id = 0
+        self.llama_tokenizer.pad_token = '0'
         self.llama_tokenizer.padding_side = "right"
         self.instruct_ids, self.instruct_mask = self.llama_tokenizer(self.args['instruction_text'][0],
                                                                      truncation=True, padding=False,
@@ -59,8 +60,8 @@ class LLM4Rec(nn.Module):
 
     def predict(self, inputs, inputs_mask):
         bs = inputs.shape[0]
-        instruct_embeds = self.llama_model.model.embed_tokens(self.instruct_ids.cuda()).expand(bs, -1, -1)
-        response_embeds = self.llama_model.model.embed_tokens(self.response_ids.cuda()).expand(bs, -1, -1)
+        instruct_embeds = self.llama_model.model.get_input_embeddings()(self.instruct_ids.cuda()).expand(bs, -1, -1)
+        response_embeds = self.llama_model.model.get_input_embeddings()(self.response_ids.cuda()).expand(bs, -1, -1)
         instruct_mask = self.instruct_mask.cuda().expand(bs, -1)
         response_mask = self.response_mask.cuda().expand(bs, -1)
 
